@@ -7,23 +7,23 @@
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373",
+    "primary": "#d4163c",
+    "light": "#c90a1d",
+    "dark": "#d4163c",
     "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
+      "from": "#d4163c",
+      "to": "#c90a1d"
     }
   },
   "topbarLinks": [
     {
       "name": "Support",
-      "url": "mailto:hi@mintlify.com"
+      "url": "mailto:contact@laika.dog"
     }
   ],
   "topbarCtaButton": {
     "name": "Dashboard",
-    "url": "https://dashboard.mintlify.com"
+    "url": "https://laika.dog"
   },
   "tabs": [
     {

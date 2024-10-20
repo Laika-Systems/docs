@@ -1,10 +1,165 @@
 ---
-title: 'New file'
-description: 'Description of your new file.'
+title: 'Interbol'
+description: 'Client server networking'
 ---
 
-## Basic
 
-### Inline Code
 
-To denote a `word` or `phrase` as code, enclose it in backticks (`).
+
+
+## MSOS 2ND GENERATION NETWORK
+
+The objective of this module is to facilitate communication for the server and its connected clients by providing a commonly shared
+interface for developers to integrate networking into their applications. This module emulates and supports invocation and one-way
+transmissions, while also having some security mitigations for some common areas that exploiters frequently attempt to attack. This
+module works best from ReplicatedStorage, but is also compatible if a copy is replicated to individual clients. I, the developer,
+recommend that you use the "2" variations of the invocation functions with a time-out to avoid malicious thread yielding unless
+you are manually verifying data delivery using a separate thread. Each client should be importing a copy of this module to avoid
+communication issues, as the system works under the assumption that each client has a running copy.
+
+## NOTICE
+Functions that begin with "NETWORK_" are intended for internal use only, and will propagate an error
+back to any external threads when called. If a function you're calling accepts parameters "LOCAL_WRITE"
+and/or "REMOTE_WRITE", it is best to set these values to be always "true". They are intended for state
+keeping purposes, and it is not recommended to tamper with these unless you have extensive knowledge of
+the code's internal workings. Functions that are meant for internal usage will NOT be included as part of
+this API reference.
+
+## API REFERENCE
+
+`NETWORK_2G.new(DESIGNATION) --(string)`
+
+Yields on the server.
+
+Creates a new network.
+On the server, returns the network class plus an array `{number, boolean|string}` of clients in tuple form.
+The array serves to indicate if the clients successfully created the network on their end.
+You may index this list in the form `{Player.UserId, boolean, string|nil}`. If the second index is anything
+other than a "true" boolean, then you may use the index to output an error message. There is currently
+no way to retry a network creation for a client in this network generation. You may disconnect the client
+manually and ask them to rejoin or you may remove internal API restrictions and try again at your own
+risk.
+
+`NETWORK_2G:FireClient(PLAYER, ...) --(player?, ...:any?)`
+
+Similar to RemoteEvent.FireClient, this function calls any connected nodes
+on the network instance from a client (nil/false = all clients). See NETWORK_2G.Connect for more
+details. The callback invoked may yield as there's no returned results expected. Additional
+parameters are taken as a tuple and are passed in the same form when they reach the client nodes.
+
+`NETWORK_2G:FireServer(...) --(...:any?)`
+
+Similar to RemoteEvent.FireServer, this function calls any connected
+nodes on a server network instance. The callback invoked may yield as there's no returned results expected.
+Additional parameters are taken as a tuple and are passed in the same form when they reach the server nodes.
+
+`NETWORK_2G:InvokeClient(PLAYER, ...) --(player?, ...:any?)`
+
+Deprecated - Use InvokeClient2 with a time-out.
+
+`NETWORK_2G:InvokeServer(...) --(...:any?)`
+
+Deprecated - Use InvokeServer2 with a time-out.
+
+`NETWORK_2G:InvokeClient2(PLAYER, TIME_OUT, ...) --(PLAYER:player?, TIME_OUT:number?, ...:any?)`
+
+Yields.
+
+Invokes the OnInvoke OR OnClientInvoke callback on a client network instance, the latter is deprecated.
+Further network generation will support multiple invocation callbacks. The callback assigned may yield and
+the parameters passed are taken as a tuple and are passed in the same form when they reach the client callback.
+
+Any returned paramters from the callback are taken as a tuple and are returned in the same form as they were assigned.
+If a client is not defined then the function returns an array in the form `{Player.UserId, any?, any?}`, where the second index
+represents the first tuple the callback returned and so forth. It may also represent a false success boolean from a pcall and the
+following index being the error message. Errors from calling a single client propagate to the caller thread.
+
+ATTENTION - Not using a time-out puts you at risk for malicious thread yielding from exploiters, and it may hang your
+caller thread indefinitely. This network generation does not support internal communication of the time limit to the
+invoked callback, so it must respond as quickly as possible to avoid the channel closing from the other end. This
+is something that will no longer be optional in later network generations, but will be preserved for the local communication
+modules that are not yet released.
+
+`NETWORK_2G:InvokeServer2(TIME_OUT, ...) --(TIMEOUT:number?, ...:any?)`
+
+Yields.
+
+Invokes the OnInvoke OR OnServerInvoke callback on a server network instance, the latter is deprecated.
+Further network generation will support multiple invocation callbacks. The callback assigned may yield and
+the parameters passed are taken as a tuple and are passed in the same form when they reach the server callback.
+
+Any returned parameters from the callback are taken as a tuple and are returned in the same form as they were assigned.
+Errors propagate to the caller thread.
+
+ATTENTION - Not using a time-out puts you at risk for thread yielding, and it may hang your caller thread indefinitely.
+This network generation does not support internal communication of the time limit to the invoked callback, so it must
+respond as quickly as possible to avoid the channel closing from the other end. This is something that will no longer be
+optional in later network generations, but will be preserved for the local communication modules that are not yet released.
+
+`NETWORK_2G.Is2GNetwork(USER_DATA) --(USER_DATA:any?)`
+
+Returns a boolean indicating if the passed parameter is a
+network instance created by the active module.
+
+`NETWORK_2G:IsConnected()`
+
+Returns a boolean indicating if the network is not destroyed on the local machine
+and is actively receiving any transmissions.
+
+`NETWORK_2G:Connect(HANDLER) --( HANDLER:(...any?) -> () )`
+
+Creates a new node instance on the network instance that will be called whenever the remote
+environment calls a "Fire" function. That call will be directed at the passed handler function.
+This function returns a mimic of the RBXScriptConnection "SCRIPT_CONNECTION_2G" class that has
+property "Connected" and function "Disconnect" available.
+
+`NETWORK_2G:Once(HANDLER) --( HANDLER:(...any?) -> () )`
+
+Performs the same operation as NETWORK_2G.Connect, but will disconnect the
+node from the network instance after receiving a single call from the remote environment.
+
+`NETWORK_2G:Wait()`
+
+Yields.
+
+Performs the same operation as NETWORK_2G.Once internally, but instead yields the caller
+thread until a transmission is received. The data passed is returned to the caller thread
+immediately.
+
+`NETWORK_2G:DisconnectAll(CLIENT, LOCAL_WRITE, REMOTE_WRITE) --(CLIENT:player?, LOCAL_WRITE:boolean?, REMOTE_WRITE:boolean?)`
+
+Disconnects all nodes and nullifies invocation callbacks from a network instance. LOCAL_WRITE being a "true" boolean indicates
+that you want to perform this operation on the local machine. REMOTE_WRITE being a "true" boolean indicates you want
+to perform this operation on the remote machine - on the server, this is ignored, but acknowledged for record-keeping
+purposes. You may also perform both operations on a single call. On the server, not setting a client with REMOTE_WRITE on
+will send the request to all clients and the function will return a table in the form `{Player.UserId, boolean, nil|string}`
+so that developers may verify which clients successfully executed the request. Individual requests will return a single boolean
+to indicate success plus a string message for any errors. Setting a client with REMOTE_WRITE off from the server will cause the
+server to only update its side while not communicating the change to the client, but this has no practical functionality.
+The client does not use the client parameter and can be set to nil.
+
+`NETWORK_2G:Destroy(CLIENT, LOCAL_WRITE, REMOTE_WRITE) --(CLIENT:player?, LOCAL_WRITE:boolean?, REMOTE_WRITE:boolean?)`
+
+Destroys all nodes and nullifies invocation callbacks from a network instance, and removes the network instance from the
+processing clock to avoid receiving further transmissions. LOCAL_WRITE being a "true" boolean indicates
+that you want to perform this operation on the local machine. REMOTE_WRITE being a "true" boolean indicates you want
+to perform this operation on the remote machine - on the server, this is ignored, but acknowledged for record-keeping
+purposes. You may also perform both operations on a single call. On the server, not setting a client with REMOTE_WRITE on
+will send the request to all clients and the function will return a table in the form `{Player.UserId, boolean, nil|string}`
+so that developers may verify which clients successfully executed the request. Individual requests will return a single boolean
+to indicate success plus a string message for any errors. Setting a client with REMOTE_WRITE off from the server will cause the
+server to only update its side while not communicating the change to the client, but this has no practical functionality.
+The client does not use the client parameter and can be set to nil.
+
+ATTENTION - This function will resume all yielded invocations with a network destruction error.
+
+`SCRIPT_CONNECTION_2G:Disconnect()`
+
+Disconnects an individual node from a local network instance. Calling this function
+will cause the node and its assigned handler to no longer receieve data transmissions
+from the remote machine, and will set the connection instance's "Connected" property to
+false if it succeeded. Subsequent calls all get ignored, and this function will always return
+a "nil" value.
+
+Further details might be added as development continues. You generally want to set LOCAL_WRITE and REMOTE_WRITE
+to a "true" boolean if those parameters are provided.

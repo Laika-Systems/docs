@@ -28,8 +28,8 @@
   "tabs": [
     {
       "name": "API Reference",
-      "openapi": "/pi-reference/openapi.json",
-      "url": "api-reference"
+      "openapi": "/api-reference/openapi.json",
+      "url": "api-reference2"
     }
   ],
   "anchors": [

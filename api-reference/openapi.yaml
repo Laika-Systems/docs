@@ -1,34 +1,10 @@
 openapi: 3.1.0
 info:
-  title: Laika Internal
-  description: Laika Internal
+  title: Laika internal
+  description: Laika internal
   version: 0.0.0
   x-fiddle-import-file: true
 paths:
-  /api/getgamekey:
-    get:
-      operationId: finalizeGameSetup
-      summary: Finalize game setup
-      responses:
-        "200":
-          description: OK - Successful request with response body
-          content:
-            application/json:
-              schema:
-                type: string
-                description: Key
-                title: FinalizeGameSetupOk
-      parameters:
-        - in: query
-          name: gameID
-          required: true
-          style: form
-          description: The game id
-          explode: true
-          schema:
-            type: string
-            description: Gameid
-          allowReserved: false
   /api/log:
     post:
       operationId: makeNewLogMessage
@@ -134,9 +110,9 @@ paths:
                   type: string
               required:
                 - gameKey
-                - Analytics
                 - serverID
                 - playerID
+                - Analytics
       parameters: []
       description: analytics from session
   /api/playerlist:
@@ -193,3 +169,28 @@ paths:
                       type: string
                 required:
                   - PermissionTable
+  /api/finalizesetup:
+    post:
+      operationId: finalizeGameSetup
+      summary: Finalize game setup
+      responses:
+        "200":
+          description: OK - Successful request with response body
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Key
+                title: FinalizeGameSetupOk
+      requestBody:
+        required: true
+        description: ""
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameID:
+                  type: string
+              required:
+                - gameID

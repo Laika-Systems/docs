@@ -1,0 +1,195 @@
+openapi: 3.1.0
+info:
+  title: Laika Internal
+  description: Laika Internal
+  version: 0.0.0
+  x-fiddle-import-file: true
+paths:
+  /api/getgamekey:
+    get:
+      operationId: finalizeGameSetup
+      summary: Finalize game setup
+      responses:
+        "200":
+          description: OK - Successful request with response body
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Key
+                title: FinalizeGameSetupOk
+      parameters:
+        - in: query
+          name: gameID
+          required: true
+          style: form
+          description: The game id
+          explode: true
+          schema:
+            type: string
+            description: Gameid
+          allowReserved: false
+  /api/log:
+    post:
+      operationId: makeNewLogMessage
+      summary: Make new log message
+      responses:
+        "201":
+          description: Created - Resource successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                required:
+                  - data
+      requestBody:
+        required: true
+        description: ""
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Message:
+                  type: string
+                serverID:
+                  type: string
+                gameKey:
+                  type: string
+              required:
+                - ServerID
+                - GameKey
+                - Message
+                - ServerID
+                - serverID
+                - gameKey
+  /api/playerleft:
+    post:
+      operationId: playerLeft
+      summary: Player Left
+      responses:
+        "201":
+          description: The request was successful, and a new resource was created.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        description: ""
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameKey:
+                  type: string
+                serverID:
+                  type: string
+                Analytics:
+                  type: object
+                  properties:
+                    SessionLength:
+                      type: string
+                    TransactionValue:
+                      type: string
+                    AverageFrameRate:
+                      type: string
+                    LowFrameRate:
+                      type: string
+                    HighFrameRate:
+                      type: string
+                    CrashLogs:
+                      type: array
+                      items:
+                        type: string
+                    DeviceType:
+                      type: string
+                    MessagesSent:
+                      type: string
+                    FriendsAdded:
+                      type: string
+                    Transactions:
+                      type: string
+                    Country:
+                      type: string
+                  required:
+                    - DeltaPlaytime
+                    - SessionLength
+                    - TransactionValue
+                    - AverageFrameRate
+                    - LowFrameRate
+                    - HighFrameRate
+                    - CrashLogs
+                    - Location
+                    - DeviceType
+                    - MessagesSent
+                    - FriendsAdded
+                    - Transactions
+                    - Country
+                playerID:
+                  type: string
+              required:
+                - gameKey
+                - Analytics
+                - serverID
+                - playerID
+      parameters: []
+      description: analytics from session
+  /api/playerlist:
+    post:
+      operationId: sendPlayerList
+      summary: Send player list
+      responses:
+        "201":
+          description: Created - Resource successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                required:
+                  - data
+      requestBody:
+        required: true
+        description: ""
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serverID:
+                  type: string
+                gameKey:
+                  type: string
+                playerList:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - serverID
+                - gameKey
+                - playerList
+  /api/permissions:
+    get:
+      operationId: getAdminPermissions
+      summary: Get admin permissions
+      responses:
+        "200":
+          description: OK - Successful request with response body
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  PermissionTable:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - PermissionTable
